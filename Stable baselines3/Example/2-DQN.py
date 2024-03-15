@@ -36,3 +36,26 @@ for i in range(1000):
     action, _states = model.predict(obs, deterministic=True)
     obs, rewards, dones, info = vec_env.step(action)
     vec_env.render("human")
+
+# 输出信息
+# -----------------------------------------
+# | rollout/                |             |
+# |    ep_len_mean          | 25.1        | （平均每次eposide结束所需的动作次数）
+# |    ep_rew_mean          | -1.63       | （平均奖励值）
+# | time/                   |             | （性能反映）
+# |    fps                  | 456         |
+# |    iterations           | 16          |
+# |    time_elapsed         | 71          |
+# |    total_timesteps      | 32768       |
+# | train/                  |             | （训练效果）
+# |    approx_kl            | 0.005096923 |
+# |    clip_fraction        | 0.0207      |
+# |    clip_range           | 0.2         |
+# |    entropy_loss         | -0.0347     |
+# |    explained_variance   | 0.537       |
+# |    learning_rate        | 0.0003      |
+# |    loss                 | 0.0649      |
+# |    n_updates            | 150         |
+# |    policy_gradient_loss | -0.00937    |
+# |    value_loss           | 0.208       |
+# -----------------------------------------
