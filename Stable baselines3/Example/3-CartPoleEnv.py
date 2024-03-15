@@ -9,6 +9,8 @@ from stable_baselines3.common.utils import set_random_seed
 
 def make_env(env_id: str, rank: int, seed: int = 0):
     '''
+    Utility function for multiprocessed env.
+
     :param env_id: the environment ID
     :param num_env: the number of environments you wish to have in subrocesses
     :param seed: the initial seed for RNG
@@ -27,10 +29,13 @@ if __name__ == '__main__':
     env_id = "CartPole-v1"
     # Number of the processes
     num_cpu = 4
-    # Create the vectorized environment
+    # 1. Create the vectorized environment
+    # Create env for each process
+    # There will 4 relative process appear in the window
     vec_env = SubprocVecEnv([make_env(env_id, i)for i in range(num_cpu)])
-
+    # 2. Use PPO algorithm and MLP policy to train
     model = PPO("MlpPolicy", vec_env, verbose=1)
+    # 3. Learning parameters
     model.learn(total_timesteps=25000, progress_bar=True)
 
     obs = vec_env.reset()
