@@ -4,13 +4,10 @@ class DataProcessing {
   constructor() {
     this.raw_user_data = null;
     this.formatted_user_data = null;
+    this.clean_user_data = null;
   }
 
   load_CSV(filename) {
-    // Assuming filename is a string representing the path to the CSV file
-
-    // Read the CSV file (you may need to use different approach depending on environment)
-    // Here's an example for Node.js environment
     try {
       this.raw_user_data = fs.readFileSync(filename + ".csv", "utf8");
       console.log("CSV data loaded successfully.");
@@ -26,12 +23,12 @@ class DataProcessing {
 
     const rows = this.raw_user_data.split("\n");
     this.formatted_user_data = rows.map((row) => row.split(","));
+    this.formatted_user_data.pop();
     this.formatted_user_data = this.formatted_user_data.map((user) => {
-      console.log(user);
       const title_and_name = user[0].split(" ");
       const date_of_birth = user[1];
       const age = user[2];
-      let email = user[3]
+      let email = user[3].replace(/\r+$/, "");
       const title_array = ["Mr", "Mrs", "Miss", "Ms", "Dr"];
       const titleExist = title_array.includes(title_and_name[0]);
       const title = titleExist ? title_and_name[0] : " ";
@@ -53,7 +50,45 @@ class DataProcessing {
     });
   }
   clean_data() {
-    this.clean_user_data = this.formatted_user_data.map((user) => {});
+    this.clean_user_data = this.formatted_user_data.map((user) => {
+      let user_clean = user;
+      user_clean["date_of_birth"] = this.check_date(
+        user_clean["date_of_birth"]
+      );
+      user_clean["age"] = this.check_age(user_clean["age"]);
+
+      switch (this.check_email(user_clean["email"])) {
+        case 0: {
+          user_clean[
+            "email"
+          ] = `${user_clean["first_name"]}.${user_clean["surname"]}@example.com`;
+          break;
+        }
+        case 1: {
+          user_clean["email"] = `${
+            user_clean["email"].split("@")[0]
+          }@example.com`;
+          break;
+        }
+        case 2: {
+          break;
+        }
+      }
+      const name = user_clean["email"].split("@")[0].split(".");
+      switch (
+        this.check_name(user_clean["first_name"], user_clean["surname"])
+      ) {
+        case 0: {
+          user_clean["first_name"] = name[0];
+          user_clean["surname"] = name[1];
+          break;
+        }
+        case 1: {
+          break;
+        }
+      }
+      return user_clean;
+    });
   }
   // Check and rectify the date format
   check_date(dateString) {
@@ -145,9 +180,22 @@ class DataProcessing {
     if (ageString.includes("-")) {
       const parts = ageString.split("-");
       return ageMap[parts[0]] + ageMap[parts[1]];
-    } else {
+    } else if (ageMap[ageString] != undefined) {
       return ageMap[ageString];
-    }
+    } else return parseInt(ageString);
+  }
+  check_email(emailString) {
+    const parts = emailString.split("@");
+    const name = parts[0];
+    const emailSuffix = parts[1];
+    if (name == "") return 0;
+    else if (emailSuffix != "example.com") return 1;
+    else return 2;
+  }
+  // 检查名字是否短缺
+  check_name(first_name, surname) {
+    if (first_name == "" || surname == "") return 0;
+    else return 1;
   }
 }
 
