@@ -1,5 +1,7 @@
 const fs = require("fs");
 
+const current_date = "26/02/2024";
+
 class DataProcessing {
   constructor() {
     this.raw_user_data = null;
@@ -25,17 +27,21 @@ class DataProcessing {
     this.formatted_user_data = rows.map((row) => row.split(","));
     this.formatted_user_data.pop();
     this.formatted_user_data = this.formatted_user_data.map((user) => {
-      const title_and_name = user[0].split(" ");
+      const title_and_name = user[0].trim().split(" ");
       const date_of_birth = user[1];
       const age = user[2];
       let email = user[3].replace(/\r+$/, "");
       const title_array = ["Mr", "Mrs", "Miss", "Ms", "Dr"];
       const titleExist = title_array.includes(title_and_name[0]);
       const title = titleExist ? title_and_name[0] : " ";
-      const first_name = titleExist ? title_and_name[1] : title_and_name[0];
-      const subrname = title_and_name.pop();
-      const lastElement = title_and_name.pop();
-      const middle_name = lastElement == first_name ? " " : lastElement;
+      if (titleExist) title_and_name.shift();
+      const first_name =
+        title_and_name[0] == undefined ? "" : title_and_name[0];
+      if (first_name != undefined) title_and_name.shift();
+      let lastElement = title_and_name.pop();
+      const subrname = lastElement == undefined ? " " : lastElement;
+      lastElement = title_and_name.pop();
+      const middle_name = lastElement == undefined ? " " : lastElement;
       return {
         title: title,
         first_name:
@@ -56,7 +62,7 @@ class DataProcessing {
         user_clean["date_of_birth"]
       );
       user_clean["age"] = this.check_age(user_clean["age"]);
-
+      // 检查邮箱格式
       switch (this.check_email(user_clean["email"])) {
         case 0: {
           user_clean[
@@ -75,6 +81,7 @@ class DataProcessing {
         }
       }
       const name = user_clean["email"].split("@")[0].split(".");
+      // 检查姓名
       switch (
         this.check_name(user_clean["first_name"], user_clean["surname"])
       ) {
@@ -87,6 +94,8 @@ class DataProcessing {
           break;
         }
       }
+      // 检查生日与年龄是否匹配
+
       return user_clean;
     });
   }
@@ -135,7 +144,7 @@ class DataProcessing {
         June: "06",
         July: "07",
         August: "08",
-        Sepptember: "09",
+        September: "09",
         October: "10",
         November: "11",
         December: "12",
@@ -197,6 +206,12 @@ class DataProcessing {
     if (first_name == "" || surname == "") return 0;
     else return 1;
   }
+  most_common_surname() {}
+  average_age() {}
+  youngest_dr() {}
+  most_common_month() {}
+  percentage_titles() {}
+  percentage_altered() {}
 }
 
 // Example usage:
