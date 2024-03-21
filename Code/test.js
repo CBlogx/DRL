@@ -1,9 +1,9 @@
-const user = [
-  "Mrs Hannah White",
-  "23/12/1988",
-  "44",
-  "Hannah.White@example.com\r",
-];
+// const user = [
+//   "Mrs Hannah White",
+//   "23/12/1988",
+//   "44",
+//   "Hannah.White@example.com\r",
+// ];
 
 // const title_and_name = user[0].split(" ");
 // const date_of_birth = user[1];
@@ -145,51 +145,37 @@ const user = [
 
 // correctBirthdateByAge(ageStrings2, currentDate);
 
-function validateEmail(email) {
-  // 使用正则表达式检查邮箱格式
-  const parts = email.split("@");
+// function validateEmail(email) {
+//   // 使用正则表达式检查邮箱格式
+//   const parts = email.split("@");
 
-  const name = parts[0];
-  console.log(parts);
-}
+//   const name = parts[0];
+//   console.log(parts);
+// }
 
-// 测试邮箱地址
-var email = "@example.com";
-validateEmail(email);
+// // 测试邮箱地址
+// var email = "@example.com";
+// validateEmail(email);
 
 // if (validateEmail(email)) {
 //   console.log(email + " 符合邮箱格式");
 // } else {
 //   console.log(email + " 不符合邮箱格式");
 // }
-const ageMap = {
-  zero: 0,
-  one: 1,
-  two: 2,
-  three: 3,
-  four: 4,
-  five: 5,
-  six: 6,
-  seven: 7,
-  eight: 8,
-  nine: 9,
-  ten: 10,
-  eleven: 11,
-  twelve: 12,
-  thirteen: 13,
-  fourteen: 14,
-  fifteen: 15,
-  sixteen: 16,
-  seventeen: 17,
-  eighteen: 18,
-  nineteen: 19,
-  twenty: 20,
-  thirty: 30,
-  forty: 40,
-  fifty: 50,
-  sixty: 60,
-  seventy: 70,
-  eighty: 80,
-  ninety: 90,
-};
-console.log(ageMap[10] == undefined);
+
+const user = ["Dr. XXX DDD SSS ", "23/12/1988", "44", "Hannah.White@example.com\r"];
+
+const title_and_name = user[0].trim().split(" ");
+
+const title_array = ["Mr", "Mrs", "Miss", "Ms", "Dr"];
+const titleExist = title_array.includes(title_and_name[0]);
+
+const title = titleExist ? title_and_name[0] : " ";
+if (titleExist) title_and_name.shift();
+const first_name = title_and_name[0] == undefined ? "" : title_and_name[0];
+if (first_name != undefined) title_and_name.shift();
+let lastElement = title_and_name.pop();
+const subrname = lastElement == undefined ? " " : lastElement;
+lastElement = title_and_name.pop();
+const middle_name = lastElement == undefined ? " " : lastElement;
+console.log(title, first_name, middle_name, subrname);
