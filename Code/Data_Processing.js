@@ -10,7 +10,7 @@ class DataProcessing {
   constructor() {
     this.raw_user_data = null;
     this.formatted_user_data = null;
-    this.clean_user_data = null;
+    this.cleaned_user_data = null;
     this.user_emails = {};
   }
 
@@ -27,20 +27,21 @@ class DataProcessing {
       console.error("No raw user data available.");
       return;
     }
-
     const rows = this.raw_user_data.split("\n");
     this.formatted_user_data = rows.map((row) => row.split(","));
-    // console.log(this.formatted_user_data[107]);
-    // console.log(this.formatted_user_data[106]);
     this.formatted_user_data.pop();
     this.formatted_user_data = this.formatted_user_data.map((user) => {
       const title_and_name = user[0].split(" ");
       const date_of_birth = user[1];
       const age = user[2];
       let email = user[3].replace(/\r+$/, "");
-      const title_array = ["Mr", "Mrs", "Miss", "Ms", "Dr"];
+      const title_array = ["Mr", "Mrs", "Miss", "Ms", "Dr", "Dr."];
       const titleExist = title_array.includes(title_and_name[0]);
-      const title = titleExist ? title_and_name[0] : " ";
+      const title = titleExist
+        ? title_and_name[0] == "Dr."
+          ? "Dr"
+          : title_and_name[0]
+        : " ";
       const first_name = titleExist ? title_and_name[1] : title_and_name[0];
       const subrname = title_and_name.pop();
       const lastElement = title_and_name.pop();
@@ -59,40 +60,43 @@ class DataProcessing {
     });
   }
   clean_data() {
-    this.clean_user_data = this.formatted_user_data.map((user) => {
-      let user_clean = user;
+    this.cleaned_user_data = JSON.parse(
+      JSON.stringify(this.formatted_user_data)
+    );
+    // let cleaned_user_data = Object.assign({}, this.formatted_user_data);;
+    this.cleaned_user_data = this.cleaned_user_data.map((user) => {
       // 检查生日格式
-      user_clean["date_of_birth"] = this.check_date(
-        user_clean["date_of_birth"]
-      );
+      user["date_of_birth"] = this.check_date(user["date_of_birth"]);
       // 检查年龄格式
-      user_clean["age"] = this.check_age(user_clean["age"]);
+      user["age"] = this.check_age(user["age"]);
       // 检查邮箱
-      switch (this.check_email(user_clean["email"])) {
+      switch (this.check_email(user["email"])) {
         case 0: {
-          user_clean[
+          user[
             "email"
-          ] = `${user_clean["first_name"]}.${user_clean["surname"]}@example.com`;
+          ] = `${user["first_name"]}.${user["surname"]}@example.com`;
           break;
         }
         case 1: {
-          user_clean["email"] = `${
-            user_clean["email"].split("@")[0]
-          }@example.com`;
+          user[
+            "email"
+          ] = `${user["first_name"]}.${user["surname"]}@Liverpool.ac.uk`;
           break;
         }
         case 2: {
+          user["email"] = `${user["email"].split("@")[0]}@example.com`;
+          break;
+        }
+        case 3: {
           break;
         }
       }
-      const name = user_clean["email"].split("@")[0].split(".");
+      const name = user["email"].split("@")[0].split(".");
       // 检查名字
-      switch (
-        this.check_name(user_clean["first_name"], user_clean["surname"])
-      ) {
+      switch (this.check_name(user["first_name"], user["surname"])) {
         case 0: {
-          user_clean["first_name"] = name[0];
-          user_clean["surname"] = name[1];
+          user["first_name"] = name[0];
+          user["surname"] = name[1];
           break;
         }
         case 1: {
@@ -101,25 +105,25 @@ class DataProcessing {
       }
       // 检查年龄与生日
       let age_date = this.calculate_age_date(
-        user_clean["age"],
-        user_clean["date_of_birth"]
+        user["age"],
+        user["date_of_birth"]
       );
-      user_clean["age"] = age_date[0];
-      user_clean["date_of_birth"] = age_date[1];
+      user["age"] = age_date[0];
+      user["date_of_birth"] = age_date[1];
       // 检查邮箱是否重复
       // 存储邮箱
-      this.user_emails[user_clean["email"]] == undefined
-        ? (this.user_emails[user_clean["email"]] = [1, 0])
-        : this.user_emails[user_clean["email"]][0]++;
-      return user_clean;
+      this.user_emails[user["email"]] == undefined
+        ? (this.user_emails[user["email"]] = [1, 0])
+        : this.user_emails[user["email"]][0]++;
+      return user;
     });
-    this.clean_user_data = this.clean_user_data.map((user) => {
+
+    this.cleaned_user_data = this.cleaned_user_data.map((user) => {
       if (this.user_emails[user["email"]][0] != 1) {
         this.user_emails[user["email"]][1]++;
         const parts = user["email"].split("@");
         user["email"] =
-          parts[0] + (this.user_emails[user["email"]][1] + 1) + "@" + parts[2];
-        // console.log(this.user_emails[user["email"]][1]);
+          parts[0] + this.user_emails[user["email"]][1] + "@" + parts[1];
       }
       return user;
     });
@@ -169,7 +173,7 @@ class DataProcessing {
         June: "06",
         July: "07",
         August: "08",
-        Sepptember: "09",
+        September: "09",
         October: "10",
         November: "11",
         December: "12",
@@ -178,6 +182,7 @@ class DataProcessing {
     }
   }
   check_age(ageString) {
+    let ret_age;
     // 将错误格式的年龄转换为正确格式
     const ageMap = {
       zero: 0,
@@ -213,18 +218,21 @@ class DataProcessing {
     // 检查是否包含横杠，如果有，说明是两位数的英文表示
     if (ageString.includes("-")) {
       const parts = ageString.split("-");
-      return ageMap[parts[0]] + ageMap[parts[1]];
+      ret_age = ageMap[parts[0]] + ageMap[parts[1]];
     } else if (ageMap[ageString] != undefined) {
-      return ageMap[ageString];
-    } else return parseInt(ageString);
+      ret_age = ageMap[ageString];
+    } else ret_age = ageString;
+    return ret_age.toString();
   }
   check_email(emailString) {
     const parts = emailString.split("@");
     const name = parts[0];
     const emailSuffix = parts[1];
     if (name == "") return 0;
-    else if (emailSuffix != "example.com") return 1;
-    else return 2;
+    else if (emailSuffix == "Liverpool.ac.uk") return 1;
+    else if (emailSuffix != "Liverpool.ac.uk" && emailSuffix != "example.com")
+      return 2;
+    else return 3;
   }
   // 检查名字是否短缺
   check_name(first_name, surname) {
@@ -257,6 +265,112 @@ class DataProcessing {
     }
     return age;
   }
+  most_common_surname() {
+    let surname = {};
+    let most_common_surname = [];
+    this.cleaned_user_data.forEach((e) => {
+      surname[e["surname"]] == undefined
+        ? (surname[e["surname"]] = 1)
+        : surname[e["surname"]]++;
+    });
+    // 将对象转换为数组形式
+    const surnameArray = Object.entries(surname);
+
+    // 根据值对数组进行排序
+    surnameArray.sort((a, b) => b[1] - a[1]);
+    let maxNumber = surnameArray[0][1];
+    let lengthArray = surnameArray.length;
+    most_common_surname.push(surnameArray[0][0]);
+    for (let i = 1; i < lengthArray; i++) {
+      if (surnameArray[i][1] == maxNumber) {
+        most_common_surname.push(surnameArray[i][0]);
+      }
+    }
+    return most_common_surname;
+  }
+  average_age() {
+    let sum_age = 0;
+    let user_length = this.cleaned_user_data.length;
+    this.cleaned_user_data.forEach((user) => {
+      sum_age += parseInt(user["age"]);
+    });
+    let avg_age = (sum_age / user_length).toPrecision(3);
+    return avg_age;
+  }
+  youngest_dr() {
+    let youngest_dr = [];
+    let age = 999;
+    this.cleaned_user_data.forEach((user) => {
+      if (user["title"] == "Dr" && user["age"] < age) {
+        age = user["age"];
+      }
+    });
+    this.cleaned_user_data.forEach((user) => {
+      if (user["title"] == "Dr" && user["age"] == age) {
+        youngest_dr.push(user);
+      }
+    });
+    return youngest_dr;
+  }
+  most_common_month() {
+    let most_common_month = [];
+    let months = {};
+    this.cleaned_user_data.forEach((user) => {
+      const parts = user["date_of_birth"].split("/");
+      months[parts[1]] == undefined
+        ? (months[parts[1]] = 1)
+        : months[parts[1]]++;
+    });
+    // 将对象转换为数组形式
+    const monthsArray = Object.entries(months);
+
+    // 根据值对数组进行排序
+    monthsArray.sort((a, b) => b[1] - a[1]);
+    let maxNumber = monthsArray[0][1];
+    let lengthArray = monthsArray.length;
+    most_common_month.push(monthsArray[0][0]);
+    for (let i = 1; i < lengthArray; i++) {
+      if (monthsArray[i][1] == maxNumber) {
+        most_common_month.push(monthsArray[i][0]);
+      }
+    }
+    return most_common_month;
+  }
+  percentage_titles() {
+    let user_length = this.cleaned_user_data.length;
+    let title_obj = {
+      Mr: 0,
+      Mrs: 0,
+      Miss: 0,
+      Ms: 0,
+      Dr: 0,
+      " ": 0,
+    };
+    let percentage_titles = [];
+    this.cleaned_user_data.forEach((user) => {
+      title_obj[user["title"]]++;
+    });
+    for (let t in title_obj) {
+      percentage_titles.push(
+        Math.round((title_obj[t] / user_length) * 100) + "%"
+      );
+    }
+    return percentage_titles;
+  }
+  percentage_altered() {
+
+    let altered_number = 0;
+    let user_length = this.cleaned_user_data.length;
+    for (let i = 0; i < user_length; i++) {
+      if (
+        JSON.stringify(this.formatted_user_data[i]) !=
+        JSON.stringify(this.cleaned_user_data[i])
+      ) {
+        altered_number++;
+      }
+    }
+    console.log(altered_number);
+  }
 }
 
 // Example usage:
@@ -265,3 +379,6 @@ const dataProcessor = new DataProcessing();
 dataProcessor.load_CSV("Data");
 dataProcessor.format_data();
 dataProcessor.clean_data();
+// console.log(dataProcessor.most_common_surname());
+// console.log(dataProcessor.most_common_month());
+// console.log(dataProcessor.percentage_altered());

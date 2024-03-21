@@ -112,16 +112,37 @@
 
 // load_CSV("Data");
 
-user_emails = {};
+// user_emails = {};
 
-const emails = [
-  "example@example.com",
-  "test@test.com",
-  "example@example.com",
-  "test@test.com",
-  "another@example.com",
-];
-emails.forEach((e) => {
-  user_emails[e] == undefined ? (user_emails[e] = 1) : user_emails[e]++;
-});
-console.log(user_emails);
+// const emails = [
+//   "example@example.com",
+//   "test@test.com",
+//   "example@example.com",
+//   "test@test.com",
+//   "another@example.com",
+// ];
+// emails.forEach((e) => {
+//   user_emails[e] == undefined ? (user_emails[e] = 1) : user_emails[e]++;
+// });
+// console.log(user_emails);
+const user1 = {
+  title: " ",
+  first_name: "Alexander",
+  middle_name: "William",
+  surname: "Hughes",
+  date_of_birth: "28/08/1964",
+  age: "59",
+  email: "Alexander.Hughes@example.com",
+};
+const user2 = {
+  title: " ",
+  first_name: "Alexander",
+  middle_name: "William",
+  surname: "Hughes",
+  date_of_birth: "28/08/1964",
+  age: "59",
+  email: "Alexander.Hughes@example.com",
+};
+console.log(JSON.stringify(user2));
+console.log(JSON.stringify(user1));
+console.log(JSON.stringify(user1) == JSON.stringify(user2));
