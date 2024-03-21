@@ -125,15 +125,35 @@
 //   user_emails[e] == undefined ? (user_emails[e] = 1) : user_emails[e]++;
 // });
 // console.log(user_emails);
-const user1 = {
-  title: " ",
-  first_name: "Alexander",
-  middle_name: "William",
-  surname: "Hughes",
-  date_of_birth: "28/08/1964",
-  age: "59",
-  email: "Alexander.Hughes@example.com",
-};
+const user1 = [
+  {
+    title: " ",
+    first_name: "Alexander",
+    middle_name: "William",
+    surname: "Hughes",
+    date_of_birth: "28/08/1964",
+    age: "59",
+    email: "Alexander.Hughes@example.com",
+  },
+  {
+    title: " ",
+    first_name: "Alexander",
+    middle_name: "William",
+    surname: "Hughes",
+    date_of_birth: "28/08/1964",
+    age: "59",
+    email: "Alexander.Hughes@example.com",
+  },
+  {
+    title: " ",
+    first_name: "Alexander",
+    middle_name: "William",
+    surname: "Hughes",
+    date_of_birth: "28/08/1964",
+    age: "59",
+    email: "Alexander.Hughes@example.com",
+  },
+];
 const user2 = {
   title: " ",
   first_name: "Alexander",
@@ -143,6 +163,24 @@ const user2 = {
   age: "59",
   email: "Alexander.Hughes@example.com",
 };
-console.log(JSON.stringify(user2));
-console.log(JSON.stringify(user1));
-console.log(JSON.stringify(user1) == JSON.stringify(user2));
+// console.log(JSON.stringify(user2));
+// console.log(JSON.stringify(user1));
+// console.log(JSON.stringify(user1) == JSON.stringify(user2));
+// const uniqueArray = [...new Set(user1)];
+// const uniqueArray = user1.filter((item, index) => {
+//   return user1.indexOf(item) === index;
+// });
+
+// function uniqueObj(user1) {
+//   let uniqueMap = {};
+//   let uniqueArray = [];
+//   user1.forEach((e) => {
+//     if (uniqueMap[JSON.stringify(e)] == undefined) {
+//       uniqueMap[JSON.stringify(e)] = 1;
+//       uniqueArray.push(e);
+//     }
+//   });
+//   return uniqueArray;
+// }
+// console.log(uniqueObj(user1));
+
